@@ -29,7 +29,7 @@ class CfgMods
 		extra = 0;
 		type = "mod";
 		dependencies[] = {"Game", "World", "Mission"};
-		
+
 		class defs
 		{
 			class gameScriptModule

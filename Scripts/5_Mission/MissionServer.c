@@ -7,20 +7,23 @@ modded class MissionServer
 	{
 		super.OnInit();
 		UnesennyeServerManager.GetInstance();
-		Print("[Unesennye Server] MissionServer initialized | Author: KRa Tos (Константин)");
+		Print("[Unesennye Server] MissionServer.OnInit | Author: KRa Tos (Константин) | v" + UnesennyeConstants.MOD_VERSION);
 	}
 
-	override void OnEvent(EventType eventTypeId, Param params)
+	// CRITICAL: This is the entry point for all custom RPCs from clients
+	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
 	{
-		super.OnEvent(eventTypeId, params);
+		// Let our handler process first
+		UnesennyeServerManager.GetInstance().OnRPC(sender, target, rpc_type, ctx);
 
-		// Standard DayZ RPC routing can be extended here if needed
+		// Always call super so vanilla / other mods still receive RPCs
+		super.OnRPC(sender, target, rpc_type, ctx);
 	}
 
 	override void InvokeOnConnect(PlayerBase player, PlayerIdentity identity)
 	{
 		super.InvokeOnConnect(player, identity);
-		// Client will initiate Handshake after world load
+		// Client will send HS_REQUEST after world load
 	}
 
 	override void PlayerDisconnected(PlayerBase player, PlayerIdentity identity, string uid)

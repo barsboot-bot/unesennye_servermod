@@ -22,41 +22,51 @@ It provides:
 
 ---
 
-## Installation
+## Installation (for PBO packing & testing)
 
-1. Place the `@unesennye_servermod` folder into your server's mods directory.
-2. Add it to the server launch parameters:
-   ```
-   -mod=@unesennye_servermod;@unesennye_music_db;@unesennye
-   ```
-3. Restart the server.
+1. Download / clone this repository.
+2. Rename the root folder to `@unesennye_servermod` (if needed).
+3. Pack with your preferred tool (Addon Builder, Mikero's Tools, DayZ Tools, etc.) into a `.pbo`.
+4. Place the resulting `@unesennye_servermod` folder into your server's mods directory.
+5. Add to server launch parameters:
+
+```
+-mod=@unesennye_servermod;@unesennye_music_db;@unesennye
+```
+
+6. Restart the server and check the script log for:
+
+```
+[Unesennye Server] Manager initialized | Version: 1.2.0 | Author: KRa Tos (Константин)
+[Unesennye Server] MissionServer.OnInit | Author: KRa Tos (Константин) | v1.2.0
+```
 
 ---
 
 ## Handshake Protocol
 
-| Parameter              | Value   |
-|------------------------|---------|
-| Request RPC            | 100     |
-| Response RPC           | 200     |
-| Timeout                | 4000 ms |
-| Check interval         | 500 ms  |
-| Disconnect message     | `Error: Required server mod 'unesennye_servermod' is missing.` |
+| Parameter          | Value   |
+|--------------------|---------|
+| Request RPC        | 100     |
+| Response RPC       | 200     |
+| Timeout            | 4000 ms |
+| Check interval     | 500 ms  |
+| Disconnect message | `Error: Required server mod 'unesennye_servermod' is missing.` |
 
 ---
 
 ## RPC Ranges
 
-| Range   | System          |
-|---------|-----------------|
-| 100–104 | Car Radio (v1.0.0) requests |
+| Range   | System                          |
+|---------|---------------------------------|
+| 100–104 | Car Radio (v1.0.0) requests     |
 | 200–204 | Car Radio responses / broadcast |
-| 300–305 | Walkie-talkie (v1.1.0) |
-| 400–406 | Albums (v1.2.0) |
+| 300–305 | Walkie-talkie (v1.1.0)          |
+| 400–406 | Albums (v1.2.0)                 |
 
 ---
 
-## File Structure
+## File Structure (ready for packing)
 
 ```
 @unesennye_servermod/
@@ -85,4 +95,4 @@ Unauthorized redistribution, repacking or removal of author credits is prohibite
 
 ---
 
-*Generated for DayZ Standalone 1.24+*
+*Ready for DayZ Standalone 1.24+ | Pack to PBO and test on server*

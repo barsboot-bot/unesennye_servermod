@@ -63,7 +63,7 @@ class UnesennyeRPCHandler
 				break;
 
 			default:
-				// Unknown RPC - silently ignore to avoid crashes
+				// Unknown RPC — silently ignore (never crash server)
 				break;
 		}
 	}
@@ -81,7 +81,7 @@ class UnesennyeRPCHandler
 		if (!UnesennyeAuth.IsAuthorized(identity))
 			return;
 
-		// Example response - replace with real track list from config / music_db
+		// Placeholder — replace with real list from @unesennye_music_db if needed
 		Param1<string> response = new Param1<string>("track_01,track_02,track_03");
 		GetGame().RPCSingleParam(null, UnesennyeConstants.TRACK_LIST_RESP, response, true, identity);
 	}
@@ -98,7 +98,7 @@ class UnesennyeRPCHandler
 		string soundSet = data.param1;
 		Print("[Unesennye Server] RADIO_PLAY by " + identity.GetName() + " -> " + soundSet);
 
-		// Broadcast to nearby players
+		// Broadcast to all clients (client-side will filter by distance if needed)
 		Param1<string> broadcast = new Param1<string>(soundSet);
 		GetGame().RPCSingleParam(null, UnesennyeConstants.BROADCAST_PLAY, broadcast, true, null);
 	}
@@ -190,7 +190,6 @@ class UnesennyeRPCHandler
 			return;
 		}
 
-		// Example response
 		Param1<string> response = new Param1<string>("album_01_track_01,album_01_track_02,album_01_track_03");
 		GetGame().RPCSingleParam(null, UnesennyeConstants.ALBUM_TRACKLIST_RESP, response, true, identity);
 	}

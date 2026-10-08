@@ -42,4 +42,9 @@ class UnesennyeAuth
 	{
 		m_AuthorizedPlayers.Clear();
 	}
+
+	static int GetAuthorizedCount()
+	{
+		return m_AuthorizedPlayers.Count();
+	}
 };
