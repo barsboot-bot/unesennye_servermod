@@ -1,97 +1,99 @@
-# UNESENNYE MUSIC SYSTEM v1.2.0 — Server Mod
+# UNESENNYE MUSIC SYSTEM v1.2.1 — Server Mod
 
 **Author:** KRa Tos (Константин)  
-**Version:** 1.2.0  
+**Version:** 1.2.1  
 **Type:** Server-only mod  
 **Required for:** `@unesennye` (client) and `@unesennye_music_db`
 
 ---
 
-## Description
+## Что нового в v1.2.1
 
-This is the **server-side** component of the Unesennye Music System.  
-It provides:
-
-- Handshake Protocol (protection against unauthorized client usage)
-- Full RPC handling (IDs 100–406)
-- Player authorization tracking
-- Validation of radio / walkie / album actions
-- Broadcast synchronization
-
-**Without this mod installed on the server, the client mod will force-disconnect players after 4 seconds.**
+- **SD-карта** (`Unesennye_SD_Card` / `Unesennye_SD_Card_Empty`)
+- Слот `Unesennye_SDCard` добавлен на:
+  - PersonalRadio (рации)
+  - OffroadHatchback, Hatchback_02, CivilianSedan, Sedan_02, Truck_01_Base (автомобили)
+- Серверная валидация вставки/извлечения SD-карты
+- Привязка плейлиста к SD-карте через `varQuantity` (ID из `@unesennye_music_db`)
+- Воспроизведение через рацию/магнитолу возможно **только** при вставленной SD-карте
 
 ---
 
-## Installation (for PBO packing & testing)
+## SD-карта — как это работает
 
-1. Download / clone this repository.
-2. Rename the root folder to `@unesennye_servermod` (if needed).
-3. Pack with your preferred tool (Addon Builder, Mikero's Tools, DayZ Tools, etc.) into a `.pbo`.
-4. Place the resulting `@unesennye_servermod` folder into your server's mods directory.
-5. Add to server launch parameters:
+1. Игрок находит или получает `Unesennye_SD_Card` (с quantity = ID плейлиста) или пустую `Unesennye_SD_Card_Empty`.
+2. Вставляет карту в слот рации или автомобиля.
+3. Клиент отправляет RPC `RADIO_INSERT_CARD` (300) с параметрами `(className, playlistId)`.
+4. Сервер сохраняет состояние в `UnesennyeSDCardManager`.
+5. При `RADIO_PLAY_TRACK` (302) сервер проверяет наличие карты и рассылает broadcast с `playlistId + track`.
+6. Клиент по `playlistId` берёт файлы из `@unesennye_music_db`.
+
+### Привязка к music_db
+
+| quantity SD-карты | Что означает                          |
+|-------------------|---------------------------------------|
+| 0                 | Пустая карта                          |
+| 1…99              | ID плейлиста / альбома в music_db     |
+
+Рекомендуется в `@unesennye_music_db` иметь структуру:
+
+```
+sounds/
+  sd_playlists/
+    01/
+      track_01.ogg
+      track_02.ogg
+    02/
+      ...
+```
+
+---
+
+## Установка (PBO)
+
+1. Склонируйте репозиторий.
+2. Переименуйте корень в `@unesennye_servermod` (если нужно).
+3. Упакуйте в PBO (DayZ Tools / Mikero / Addon Builder).
+4. Добавьте в параметры сервера:
 
 ```
 -mod=@unesennye_servermod;@unesennye_music_db;@unesennye
 ```
 
-6. Restart the server and check the script log for:
+5. В логе сервера должно появиться:
 
 ```
-[Unesennye Server] Manager initialized | Version: 1.2.0 | Author: KRa Tos (Константин)
-[Unesennye Server] MissionServer.OnInit | Author: KRa Tos (Константин) | v1.2.0
-```
-
----
-
-## Handshake Protocol
-
-| Parameter          | Value   |
-|--------------------|---------|
-| Request RPC        | 100     |
-| Response RPC       | 200     |
-| Timeout            | 4000 ms |
-| Check interval     | 500 ms  |
-| Disconnect message | `Error: Required server mod 'unesennye_servermod' is missing.` |
-
----
-
-## RPC Ranges
-
-| Range   | System                          |
-|---------|---------------------------------|
-| 100–104 | Car Radio (v1.0.0) requests     |
-| 200–204 | Car Radio responses / broadcast |
-| 300–305 | Walkie-talkie (v1.1.0)          |
-| 400–406 | Albums (v1.2.0)                 |
-
----
-
-## File Structure (ready for packing)
-
-```
-@unesennye_servermod/
-├── mod.cpp
-├── config.cpp
-├── README.md
-└── Scripts/
-    ├── 3_Game/
-    │   └── UnesennyeConstants.c
-    ├── 4_World/
-    │   ├── UnesennyeAuth.c
-    │   ├── UnesennyeRPCHandler.c
-    │   └── UnesennyeServerManager.c
-    └── 5_Mission/
-        └── MissionServer.c
+[Unesennye Server] Manager initialized | Version: 1.2.1 | Author: KRa Tos (Константин)
 ```
 
 ---
 
-## Author & License
+## Важные замечания по слотам
 
-**Author:** KRa Tos (Константин)  
+- Слоты `attachments[] += {"Unesennye_SDCard"}` добавлены на несколько классов машин и PersonalRadio.
+- Для полного визуального слота и корректной работы на всех машинах рекомендуется продублировать определения слотов и предметов в **клиентском** моде `@unesennye`.
+- Модель SD-карты сейчас использует placeholder (`battery.p3d`). Замените на свою модель в клиентском моде.
 
-All rights reserved.  
-Unauthorized redistribution, repacking or removal of author credits is prohibited.
+---
+
+## RPC (дополнено)
+
+| ID  | Назначение                    |
+|-----|-------------------------------|
+| 300 | RADIO_INSERT_CARD (SD)        |
+| 301 | RADIO_EJECT_CARD (SD)         |
+| 302 | RADIO_PLAY_TRACK (требует SD) |
+| 303 | RADIO_STOP_TRACK              |
+| 304 | RADIO_BROADCAST               |
+| 305 | RADIO_BROADCAST_STOP          |
+
+---
+
+## Author
+
+**KRa Tos (Константин)**  
+
+All rights reserved. Unauthorized redistribution or removal of author credits is prohibited.
 
 ---
 

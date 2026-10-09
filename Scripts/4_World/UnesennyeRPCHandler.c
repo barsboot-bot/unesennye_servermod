@@ -1,4 +1,4 @@
-// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.0
+// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.1
 // Do not remove this header. Unauthorized redistribution is prohibited.
 
 class UnesennyeRPCHandler
@@ -28,21 +28,21 @@ class UnesennyeRPCHandler
 				HandleRadioStop(sender, ctx);
 				break;
 
-			// ==================== РАЦИИ ====================
+			// ==================== РАЦИИ + SD CARD ====================
 			case UnesennyeConstants.RADIO_INSERT_CARD:
-				HandleRadioInsertCard(sender, ctx);
+				HandleRadioInsertCard(sender, target, ctx);
 				break;
 
 			case UnesennyeConstants.RADIO_EJECT_CARD:
-				HandleRadioEjectCard(sender, ctx);
+				HandleRadioEjectCard(sender, target, ctx);
 				break;
 
 			case UnesennyeConstants.RADIO_PLAY_TRACK:
-				HandleRadioPlayTrack(sender, ctx);
+				HandleRadioPlayTrack(sender, target, ctx);
 				break;
 
 			case UnesennyeConstants.RADIO_STOP_TRACK:
-				HandleRadioStopTrack(sender, ctx);
+				HandleRadioStopTrack(sender, target, ctx);
 				break;
 
 			// ==================== АЛЬБОМЫ ====================
@@ -63,7 +63,6 @@ class UnesennyeRPCHandler
 				break;
 
 			default:
-				// Unknown RPC — silently ignore (never crash server)
 				break;
 		}
 	}
@@ -81,7 +80,6 @@ class UnesennyeRPCHandler
 		if (!UnesennyeAuth.IsAuthorized(identity))
 			return;
 
-		// Placeholder — replace with real list from @unesennye_music_db if needed
 		Param1<string> response = new Param1<string>("track_01,track_02,track_03");
 		GetGame().RPCSingleParam(null, UnesennyeConstants.TRACK_LIST_RESP, response, true, identity);
 	}
@@ -98,7 +96,6 @@ class UnesennyeRPCHandler
 		string soundSet = data.param1;
 		Print("[Unesennye Server] RADIO_PLAY by " + identity.GetName() + " -> " + soundSet);
 
-		// Broadcast to all clients (client-side will filter by distance if needed)
 		Param1<string> broadcast = new Param1<string>(soundSet);
 		GetGame().RPCSingleParam(null, UnesennyeConstants.BROADCAST_PLAY, broadcast, true, null);
 	}
@@ -112,38 +109,68 @@ class UnesennyeRPCHandler
 		GetGame().RPCSingleParam(null, UnesennyeConstants.BROADCAST_STOP, null, true, null);
 	}
 
-	// ==================== РАЦИИ ====================
-	protected void HandleRadioInsertCard(PlayerIdentity identity, ParamsReadContext ctx)
+	// ==================== SD CARD + РАЦИИ ====================
+	// Клиент отправляет: Param2<string, int> (className карты, playlistId из quantity)
+	protected void HandleRadioInsertCard(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
 		if (!UnesennyeAuth.IsAuthorized(identity))
 			return;
-		Print("[Unesennye Server] RADIO_INSERT_CARD by " + identity.GetName());
+
+		Param2<string, int> data;
+		if (!ctx.Read(data))
+		{
+			// fallback для старого клиента без параметров
+			UnesennyeSDCardManager.InsertCard(identity, target, 1, UnesennyeConstants.SD_CARD_CLASS);
+			return;
+		}
+
+		string cardClass = data.param1;
+		int playlistId = data.param2;
+
+		if (cardClass != UnesennyeConstants.SD_CARD_CLASS && cardClass != UnesennyeConstants.SD_CARD_EMPTY)
+		{
+			Print("[Unesennye Server] Rejected invalid SD card class: " + cardClass);
+			return;
+		}
+
+		UnesennyeSDCardManager.InsertCard(identity, target, playlistId, cardClass);
 	}
 
-	protected void HandleRadioEjectCard(PlayerIdentity identity, ParamsReadContext ctx)
+	protected void HandleRadioEjectCard(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
 		if (!UnesennyeAuth.IsAuthorized(identity))
 			return;
-		Print("[Unesennye Server] RADIO_EJECT_CARD by " + identity.GetName());
+
+		UnesennyeSDCardManager.EjectCard(identity, target);
 	}
 
-	protected void HandleRadioPlayTrack(PlayerIdentity identity, ParamsReadContext ctx)
+	protected void HandleRadioPlayTrack(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
 		if (!UnesennyeAuth.IsAuthorized(identity))
 			return;
+
+		// Проверяем, что SD-карта вставлена
+		if (!UnesennyeSDCardManager.HasCard(identity, target))
+		{
+			Print("[Unesennye Server] RADIO_PLAY_TRACK rejected — no SD Card inserted");
+			return;
+		}
+
+		int playlistId = UnesennyeSDCardManager.GetPlaylistId(identity, target);
 
 		Param1<string> data;
-		if (!ctx.Read(data))
-			return;
+		string track = "";
+		if (ctx.Read(data))
+			track = data.param1;
 
-		string track = data.param1;
-		Print("[Unesennye Server] RADIO_PLAY_TRACK by " + identity.GetName() + " -> " + track);
+		Print("[Unesennye Server] RADIO_PLAY_TRACK by " + identity.GetName() + " | playlist=" + playlistId.ToString() + " | track=" + track);
 
-		Param1<string> broadcast = new Param1<string>(track);
+		// Broadcast: передаём playlistId + track (клиент возьмёт файл из @unesennye_music_db)
+		Param2<int, string> broadcast = new Param2<int, string>(playlistId, track);
 		GetGame().RPCSingleParam(null, UnesennyeConstants.RADIO_BROADCAST, broadcast, true, null);
 	}
 
-	protected void HandleRadioStopTrack(PlayerIdentity identity, ParamsReadContext ctx)
+	protected void HandleRadioStopTrack(PlayerIdentity identity, Object target, ParamsReadContext ctx)
 	{
 		if (!UnesennyeAuth.IsAuthorized(identity))
 			return;

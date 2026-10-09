@@ -1,4 +1,4 @@
-// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.0
+// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.1
 // Do not remove this header. Unauthorized redistribution is prohibited.
 
 class UnesennyeAuth

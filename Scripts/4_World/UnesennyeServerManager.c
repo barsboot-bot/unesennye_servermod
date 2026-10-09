@@ -1,4 +1,4 @@
-// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.0
+// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.1
 // Do not remove this header. Unauthorized redistribution is prohibited.
 
 class UnesennyeServerManager
@@ -28,11 +28,13 @@ class UnesennyeServerManager
 	void OnPlayerDisconnected(PlayerIdentity identity)
 	{
 		UnesennyeAuth.RevokeAccess(identity);
+		UnesennyeSDCardManager.ClearForPlayer(identity);
 	}
 
 	void OnServerShutdown()
 	{
 		UnesennyeAuth.ClearAll();
+		UnesennyeSDCardManager.ClearAll();
 		Print("[Unesennye Server] Shutdown complete. Author: " + UnesennyeConstants.AUTHOR);
 	}
 };
