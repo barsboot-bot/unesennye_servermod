@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Unesennye Mod Builder — KRa Tos (Константин)</title>
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --border: #30363d; --text: #e6edf3;
+    --muted: #8b949e; --accent: #3fb950; --accent2: #58a6ff; --warn: #d29922; --code: #0b1220;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+  header { background: linear-gradient(135deg, #0d1117, #12261a); border-bottom: 1px solid var(--border); padding: 1.2rem 1.5rem; }
+  header h1 { margin: 0 0 .25rem; font-size: 1.3rem; }
+  header p { margin: 0; color: var(--muted); font-size: .9rem; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem 3rem; }
+  .tabs { display: flex; flex-wrap: wrap; gap: .4rem; margin: 1rem 0; border-bottom: 1px solid var(--border); padding-bottom: .6rem; }
+  .tab { background: var(--panel); border: 1px solid var(--border); color: var(--text); padding: .45rem .85rem; border-radius: 8px; cursor: pointer; font-size: .88rem; }
+  .tab.active { background: #1a3d2a; border-color: var(--accent); color: #aff5b4; }
+  .panel { display: none; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; }
+  .panel.active { display: block; }
+  h2 { margin: 0 0 .75rem; font-size: 1.1rem; color: var(--accent2); }
+  h3 { margin: 1rem 0 .5rem; font-size: .95rem; color: var(--accent); }
+  label { display: block; font-size: .85rem; color: var(--muted); margin: .55rem 0 .2rem; }
+  input, select, textarea { width: 100%; background: var(--code); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: .55rem .7rem; font-size: .9rem; }
+  textarea { min-height: 160px; font-family: ui-monospace, Consolas, monospace; font-size: .82rem; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+  @media (max-width: 720px) { .row { grid-template-columns: 1fr; } }
+  .btn { display: inline-block; margin: .4rem .35rem .4rem 0; background: #238636; border: 1px solid #2ea043; color: #fff; padding: .5rem .95rem; border-radius: 8px; cursor: pointer; font-size: .88rem; }
+  .btn.secondary { background: #21262d; border-color: var(--border); }
+  .note { background: #1c2128; border-left: 3px solid var(--accent2); padding: .65rem .85rem; margin: .75rem 0; font-size: .88rem; color: var(--muted); }
+  .warnbox { background: #2a1f0a; border-left: 3px solid var(--warn); padding: .65rem .85rem; margin: .75rem 0; font-size: .88rem; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; margin: .5rem 0; }
+  th, td { border: 1px solid var(--border); padding: .4rem .55rem; text-align: left; }
+  th { background: #21262d; color: var(--accent2); }
+  code { background: #21262d; padding: .1rem .35rem; border-radius: 4px; }
+  pre { background: var(--code); padding: 1rem; border-radius: 8px; overflow: auto; font-size: .8rem; border: 1px solid var(--border); }
+  footer { margin-top: 1.5rem; color: var(--muted); font-size: .8rem; text-align: center; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Unesennye Mod Builder v1.3.3</h1>
+  <p>Генератор serverDZ.cfg, запуска, stringtable, RPC · Автор: <strong>KRa Tos (Константин)</strong></p>
+</header>
+<div class="wrap">
+  <div class="tabs" id="tabs"></div>
+
+  <section class="panel active" id="p-server">
+    <h2>serverDZ.cfg + запуск</h2>
+    <div class="warnbox"><strong>Важно:</strong> файл называется <code>serverDZ.cfg</code>. Моды — в параметрах <code>-mod</code> / <code>-serverMod</code>.</div>
+    <div class="row">
+      <div><label>hostname</label><input id="hostname" value="Unesennye Music Server" /></div>
+      <div><label>password (вход)</label><input id="password" placeholder="пусто = без пароля" /></div>
+    </div>
+    <div class="row">
+      <div><label>passwordAdmin</label><input id="passwordAdmin" type="password" /></div>
+      <div><label>maxPlayers</label><input id="maxPlayers" type="number" value="60" /></div>
+    </div>
+    <div class="row">
+      <div><label>mission template</label><input id="mission" value="dayzOffline.chernarusplus" /></div>
+      <div><label>instanceId</label><input id="instanceId" type="number" value="1" /></div>
+    </div>
+    <div class="row">
+      <div><label>steamQueryPort</label><input id="steamQueryPort" type="number" value="2305" /></div>
+      <div><label>-mod= (клиентские)</label><input id="clientMods" value="@unesennye;@unesennye_music_db" /></div>
+    </div>
+    <label>-serverMod=</label>
+    <input id="serverMods" value="@unesennye_servermod" />
+    <div class="note">Сервер: -mod=@unesennye;@unesennye_music_db и -serverMod=@unesennye_servermod<br/>Клиент игрока: только @unesennye;@unesennye_music_db</div>
+    <button class="btn" onclick="genServerCfg()">Сгенерировать serverDZ.cfg</button>
+    <button class="btn secondary" onclick="genLaunch()">BAT запуска</button>
+    <button class="btn secondary" onclick="copyOut('out-server')">Копировать</button>
+    <textarea id="out-server" readonly></textarea>
+  </section>
+
+  <section class="panel" id="p-strings">
+    <h2>Stringtable</h2>
+    <button class="btn" onclick="genStringtable()">Показать CSV</button>
+    <button class="btn secondary" onclick="downloadText('stringtable.csv', document.getElementById('out-strings').value)">Скачать</button>
+    <textarea id="out-strings" readonly></textarea>
+  </section>
+
+  <section class="panel" id="p-rpc">
+    <h2>RPC ID</h2>
+    <table><thead><tr><th>Система</th><th>ID</th><th>Имя</th><th>Назначение</th></tr></thead><tbody id="rpc-body"></tbody></table>
+    <button class="btn" onclick="genRpcConstants()">Enforce Constants</button>
+    <textarea id="out-rpc" readonly></textarea>
+  </section>
+
+  <section class="panel" id="p-items">
+    <h2>Предметы</h2>
+    <table>
+      <tr><th>Класс</th><th>.paa</th></tr>
+      <tr><td>Unesennye_SD_Card</td><td>sd_card_co.paa</td></tr>
+      <tr><td>Unesennye_SD_Card_Empty</td><td>sd_card_empty_co.paa</td></tr>
+      <tr><td>Unesennye_Cassette</td><td>cassette_co.paa</td></tr>
+      <tr><td>Unesennye_Disk</td><td>disk_co.paa</td></tr>
+      <tr><td>Unesennye_CD</td><td>cd_co.paa</td></tr>
+      <tr><td>Unesennye_DVD</td><td>dvd_co.paa</td></tr>
+      <tr><td>Unesennye_DVD_R</td><td>dvd_r_co.paa</td></tr>
+    </table>
+    <button class="btn" onclick="genTypesXml()">types.xml</button>
+    <textarea id="out-items" readonly></textarea>
+  </section>
+
+  <section class="panel" id="p-hs">
+    <h2>Handshake</h2>
+    <div class="note">HS_REQUEST=100 → HS_RESPONSE=200 · таймаут 4000 мс · servermod только на сервере</div>
+    <button class="btn" onclick="genHandshakeSnippet()">Сниппет</button>
+    <textarea id="out-hs" readonly></textarea>
+  </section>
+
+  <section class="panel" id="p-cfgjson">
+    <h2>config.json профиля</h2>
+    <button class="btn" onclick="genConfigJson()">Сгенерировать</button>
+    <textarea id="out-cfgjson" readonly></textarea>
+  </section>
+
+  <section class="panel" id="p-struct">
+    <h2>Структура</h2>
+    <pre>@unesennye + @unesennye_music_db  → клиент
+@unesennye_servermod              → только сервер (-serverMod=)
+
+DayZServer_x64.exe -config=serverDZ.cfg -port=2302 -profiles=ServerProfile ^
+  -mod=@unesennye;@unesennye_music_db -serverMod=@unesennye_servermod</pre>
+  </section>
+
+  <footer>Author: KRa Tos (Константин) · Не публикуйте пароли</footer>
+</div>
+<script>
+const TABS=[['p-server','Сервер'],['p-strings','Строки'],['p-rpc','RPC'],['p-items','Предметы'],['p-hs','Handshake'],['p-cfgjson','config.json'],['p-struct','Структура']];
+const RPC=[['Авто',100,'HS_REQUEST','Handshake req'],['Авто',101,'TRACK_LIST_REQ','Track list'],['Авто',102,'RADIO_PLAY','Play'],['Авто',103,'RADIO_STOP','Stop'],['Авто',200,'HS_RESPONSE','Handshake ok'],['Авто',201,'AUTH_FAIL','Auth fail'],['Авто',202,'TRACK_LIST_RESP','List resp'],['Авто',203,'BROADCAST_PLAY','Broadcast play'],['Авто',204,'BROADCAST_STOP','Broadcast stop'],['Рации',300,'RADIO_INSERT_CARD','Insert'],['Рации',301,'RADIO_EJECT_CARD','Eject'],['Рации',302,'RADIO_PLAY_TRACK','Play track'],['Рации',303,'RADIO_STOP_TRACK','Stop track'],['Рации',304,'RADIO_BROADCAST','Broadcast'],['Рации',305,'RADIO_BROADCAST_STOP','Stop bc'],['Альбомы',400,'ALBUM_NEXT_TRACK','Next'],['Альбомы',401,'ALBUM_PREV_TRACK','Prev'],['Альбомы',402,'ALBUM_SET_TRACK','Set'],['Альбомы',403,'ALBUM_GET_TRACKLIST','Get list'],['Альбомы',404,'ALBUM_BROADCAST','Broadcast'],['Альбомы',405,'ALBUM_TRACKLIST_RESP','List'],['Альбомы',406,'ALBUM_REJECT','Reject']];
+const STRINGS=`Language,original,english,russian
+STR_Unesennye_Slot_SD,SD Card,SD Card,SD-карта
+STR_Unesennye_SD_Empty,SD Card (Empty),SD Card (Empty),SD-карта (пустая)
+STR_Unesennye_SD_Empty_Desc,Empty media for Unesennye radio.,Empty media for Unesennye radio.,Пустой носитель для радио Unesennye.
+STR_Unesennye_SD,SD Card,SD Card,SD-карта
+STR_Unesennye_SD_Desc,Music SD card. Quantity = playlist ID.,Music SD card. Quantity = playlist ID.,SD-карта с музыкой. Quantity = ID плейлиста.
+STR_Unesennye_Cassette,Cassette,Cassette,Кассета
+STR_Unesennye_Cassette_Desc,Audio cassette for Unesennye players.,Audio cassette for Unesennye players.,Аудиокассета для плееров Unesennye.
+STR_Unesennye_Disk,Disk,Disk,Диск
+STR_Unesennye_Disk_Desc,Music disk for Unesennye players.,Music disk for Unesennye players.,Музыкальный диск для плееров Unesennye.
+STR_Unesennye_CD,CD,CD,CD
+STR_Unesennye_CD_Desc,Compact Disc for Unesennye players.,Compact Disc for Unesennye players.,Компакт-диск для плееров Unesennye.
+STR_Unesennye_DVD,DVD,DVD,DVD
+STR_Unesennye_DVD_Desc,DVD for Unesennye players.,DVD for Unesennye players.,DVD для плееров Unesennye.
+STR_Unesennye_DVD_R,DVD-R,DVD-R,DVD-R
+STR_Unesennye_DVD_R_Desc,Recordable DVD for Unesennye players.,Recordable DVD for Unesennye players.,Записываемый DVD для плееров Unesennye.
+STR_Unesennye_Action_Insert,Insert media,Insert media,Вставить носитель
+STR_Unesennye_Action_Eject,Eject media,Eject media,Извлечь носитель
+STR_Unesennye_Action_Play,Play track,Play track,Воспроизвести
+STR_Unesennye_Action_Stop,Stop track,Stop track,Остановить`;
+function initTabs(){const t=document.getElementById('tabs');TABS.forEach(([id,n],i)=>{const b=document.createElement('button');b.className='tab'+(i? '':' active');b.textContent=n;b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(id).classList.add('active');};t.appendChild(b);});const tb=document.getElementById('rpc-body');RPC.forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${r[0]}</td><td>${r[1]}</td><td><code>${r[2]}</code></td><td>${r[3]}</td>`;tb.appendChild(tr);});}
+function v(id){return document.getElementById(id).value;}
+function genServerCfg(){document.getElementById('out-server').value=`hostname = "${v('hostname')}";
+password = "${v('password')}";
+passwordAdmin = "${v('passwordAdmin')}";
+maxPlayers = ${v('maxPlayers')};
+verifySignatures = 2;
+forceSameBuild = 1;
+disableVoN = 0;
+vonCodecQuality = 20;
+serverTime = "SystemTime";
+serverTimeAcceleration = 1;
+serverNightTimeAcceleration = 1;
+serverTimePersistent = 1;
+guaranteedUpdates = 1;
+instanceId = ${v('instanceId')};
+steamQueryPort = ${v('steamQueryPort')};
+storageAutoFix = 1;
+class Missions
+{
+\tclass DayZ
+\t{
+\t\ttemplate = "${v('mission')}";
+\t};
+};
+// -mod=${v('clientMods')}
+// -serverMod=${v('serverMods')}
+`;}
+function genLaunch(){document.getElementById('out-server').value=`@echo off
+set SERVER_EXE=DayZServer_x64.exe
+%SERVER_EXE% -config=serverDZ.cfg -port=2302 -profiles=ServerProfile -dologs -adminlog -mod=${v('clientMods')} -serverMod=${v('serverMods')}
+pause
+`;}
+function genStringtable(){document.getElementById('out-strings').value=STRINGS+'\n';}
+function genRpcConstants(){let s='class UnesennyeConstants\n{\n';RPC.forEach(r=>{s+=`\tstatic const int ${r[2]} = ${r[1]};\n`;});s+='\tstatic const string AUTHOR = "KRa Tos (Константин)";\n};\n';document.getElementById('out-rpc').value=s;}
+function genTypesXml(){const items=['Unesennye_SD_Card','Unesennye_SD_Card_Empty','Unesennye_Cassette','Unesennye_Disk','Unesennye_CD','Unesennye_DVD','Unesennye_DVD_R'];let x='';items.forEach(n=>{x+=`<type name="${n}">\n\t<nominal>5</nominal>\n\t<lifetime>14400</lifetime>\n\t<restock>1800</restock>\n\t<min>1</min>\n\t<category name="tools"/>\n</type>\n`;});document.getElementById('out-items').value=x;}
+function genHandshakeSnippet(){document.getElementById('out-hs').value='Client @unesennye sends RPC 100; server @unesennye_servermod replies 200.\nTimeout 4000ms → kick if no servermod.\nservermod is NOT installed on clients.\n';}
+function genConfigJson(){document.getElementById('out-cfgjson').value=JSON.stringify({DiscordEnabled:true,BroadcastRadius:80,PlaylistWhitelistEnabled:false,PlaylistWhitelist:[1,2],FileLogEnabled:true},null,2);}
+function copyOut(id){const el=document.getElementById(id);el.select();navigator.clipboard.writeText(el.value);}
+function downloadText(fn,t){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download=fn;a.click();}
+initTabs();genServerCfg();
+</script>
+</body>
+</html>
