@@ -1,9 +1,6 @@
-// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.2
+// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.4
 // Do not remove this header. Unauthorized redistribution is prohibited.
 
-// Простая серверная библиотека плейлистов.
-// Читает meta.txt, сгенерированные generate_music_meta.bat,
-// и отдаёт список треков по ID (для SD-карт и альбомов).
 class UnesennyeMusicLibrary
 {
 	protected static ref map<int, ref array<string>> m_Playlists = new map<int, ref array<string>>;
@@ -18,45 +15,39 @@ class UnesennyeMusicLibrary
 		m_Playlists.Clear();
 		m_PlaylistNames.Clear();
 
-		// Путь относительно профиля сервера
-		string root = "$profile:" + UnesennyeConstants.MUSIC_ROOT_DEFAULT;
-
-		// Пытаемся загрузить sd_playlists (числовые ID)
-		LoadFolder(root + "/sd_playlists");
-		LoadFolder(root + "/Type");
-		LoadFolder(root + "/CD");
+		// Built-in default playlists (match music_db SoundSets).
+		// Admins can call RegisterPlaylist() from their own scripts to add more.
+		RegisterDefaultPlaylists();
 
 		m_Loaded = true;
 		Print("[Unesennye Server] MusicLibrary loaded | playlists=" + m_Playlists.Count().ToString() + " | Author: " + UnesennyeConstants.AUTHOR);
 	}
 
-	protected static void LoadFolder(string folderPath)
+	protected static void RegisterDefaultPlaylists()
 	{
-		// В Enforce нет полноценного обхода директорий на сервере без расширений.
-		// Поэтому ожидаем, что администратор заранее сгенерировал meta.txt
-		// и прописал известные ID через конфиг или этот метод вызывается
-		// после ручной регистрации.
-		// Для полноценного авто-скана используйте generate_music_meta.bat
-		// + внешний Python/HTTP прокси (как в полном Unesennye-Mod).
+		array<string> p1 = new array<string>;
+		p1.Insert("track_01.ogg");
+		p1.Insert("track_02.ogg");
+		RegisterPlaylist(1, "SD Playlist 01", p1);
 
-		// Здесь реализован минимальный API для ручной/полуавтоматической регистрации.
+		array<string> p2 = new array<string>;
+		p2.Insert("track_01.ogg");
+		RegisterPlaylist(2, "SD Playlist 02", p2);
 	}
 
-	// Регистрация плейлиста вручную или из результата bat-скрипта
 	static void RegisterPlaylist(int id, string displayName, array<string> tracks)
 	{
 		if (id <= 0)
 			return;
 
 		ref array<string> copy = new array<string>;
-		foreach (string t : tracks)
+		for (int i = 0; i < tracks.Count(); i++)
 		{
-			copy.Insert(t);
+			copy.Insert(tracks.Get(i));
 		}
 
 		m_Playlists.Set(id, copy);
 		m_PlaylistNames.Set(id, displayName);
-
 		Print("[Unesennye Server] Playlist registered id=" + id.ToString() + " name=" + displayName + " tracks=" + tracks.Count().ToString());
 	}
 
@@ -83,13 +74,27 @@ class UnesennyeMusicLibrary
 	{
 		array<string> tracks = GetTracks(id);
 		string result = "";
-		foreach (int i, string t : tracks)
+		for (int i = 0; i < tracks.Count(); i++)
 		{
 			if (i > 0)
-				result += ",";
-			result += t;
+				result = result + ",";
+			result = result + tracks.Get(i);
 		}
 		return result;
+	}
+
+	static string GetSoundSetName(int playlistId, int trackIndex)
+	{
+		string idStr = playlistId.ToString();
+		if (playlistId < 10)
+			idStr = "0" + idStr;
+
+		int n = trackIndex + 1;
+		string trackStr = n.ToString();
+		if (n < 10)
+			trackStr = "0" + trackStr;
+
+		return "Unesennye_SD_" + idStr + "_Track_" + trackStr + "_SoundSet";
 	}
 
 	static void Clear()

@@ -1,14 +1,12 @@
-// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.1
+// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.4
 // Do not remove this header. Unauthorized redistribution is prohibited.
 
-// Менеджер состояния вставленных SD-карт (рации и автомобили).
-// Ключ: PlayerIdentity.GetId() + "_" + targetNetId  или просто uid для личной рации.
 class UnesennyeSDCardManager
 {
-	protected static ref map<string, int> m_InsertedPlaylistId = new map<string, int>; // key -> playlistId (из quantity SD-карты)
+	protected static ref map<string, int> m_InsertedPlaylistId = new map<string, int>;
 	protected static ref map<string, string> m_InsertedCardClass = new map<string, string>;
 
-	static string MakeKey(PlayerIdentity identity, Object target = null)
+	static string MakeKey(PlayerIdentity identity, Object target)
 	{
 		if (!identity)
 			return "";
@@ -16,7 +14,11 @@ class UnesennyeSDCardManager
 		string key = identity.GetId();
 		if (target)
 		{
-			key = key + "_" + target.GetID().ToString();
+			// Use low+high network ID for stability across sessions
+			int low = 0;
+			int high = 0;
+			target.GetNetworkID(low, high);
+			key = key + "_" + low.ToString() + "_" + high.ToString();
 		}
 		return key;
 	}
@@ -29,11 +31,10 @@ class UnesennyeSDCardManager
 
 		m_InsertedPlaylistId.Set(key, playlistId);
 		m_InsertedCardClass.Set(key, cardClassName);
-
 		Print("[Unesennye Server] SD Card INSERT by " + identity.GetName() + " | playlistId=" + playlistId.ToString() + " | class=" + cardClassName);
 	}
 
-	static void EjectCard(PlayerIdentity identity, Object target = null)
+	static void EjectCard(PlayerIdentity identity, Object target)
 	{
 		string key = MakeKey(identity, target);
 		if (key == "")
@@ -47,13 +48,13 @@ class UnesennyeSDCardManager
 		}
 	}
 
-	static bool HasCard(PlayerIdentity identity, Object target = null)
+	static bool HasCard(PlayerIdentity identity, Object target)
 	{
 		string key = MakeKey(identity, target);
 		return m_InsertedPlaylistId.Contains(key);
 	}
 
-	static int GetPlaylistId(PlayerIdentity identity, Object target = null)
+	static int GetPlaylistId(PlayerIdentity identity, Object target)
 	{
 		string key = MakeKey(identity, target);
 		if (m_InsertedPlaylistId.Contains(key))
@@ -69,14 +70,16 @@ class UnesennyeSDCardManager
 		string uid = identity.GetId();
 		array<string> toRemove = new array<string>;
 
-		foreach (string key, int val : m_InsertedPlaylistId)
+		for (int i = 0; i < m_InsertedPlaylistId.Count(); i++)
 		{
+			string key = m_InsertedPlaylistId.GetKey(i);
 			if (key.IndexOf(uid) == 0)
 				toRemove.Insert(key);
 		}
 
-		foreach (string k : toRemove)
+		for (int j = 0; j < toRemove.Count(); j++)
 		{
+			string k = toRemove.Get(j);
 			m_InsertedPlaylistId.Remove(k);
 			m_InsertedCardClass.Remove(k);
 		}

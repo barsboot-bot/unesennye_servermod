@@ -1,4 +1,4 @@
-// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.3
+// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.4
 // Do not remove this header. Unauthorized redistribution is prohibited.
 
 class UnesennyeConstants
@@ -42,6 +42,6 @@ class UnesennyeConstants
 
 	static const string DISCONNECT_MSG = "Error: Required server mod 'unesennye_servermod' is missing.";
 	static const string AUTHOR         = "KRa Tos (Константин)";
-	static const string MOD_VERSION    = "1.2.3";
+	static const string MOD_VERSION    = "1.2.4";
 	static const string MOD_NAME       = "unesennye_servermod";
 };

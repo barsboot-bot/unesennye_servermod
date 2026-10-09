@@ -1,4 +1,4 @@
-// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.2
+// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.4
 // Do not remove this header. Unauthorized redistribution is prohibited.
 
 class UnesennyeRPCHandler
@@ -13,51 +13,39 @@ class UnesennyeRPCHandler
 			case UnesennyeConstants.HS_REQUEST:
 				HandleHandshake(sender);
 				break;
-
 			case UnesennyeConstants.TRACK_LIST_REQ:
 				HandleTrackListRequest(sender, ctx);
 				break;
-
 			case UnesennyeConstants.RADIO_PLAY:
 				HandleRadioPlay(sender, ctx);
 				break;
-
 			case UnesennyeConstants.RADIO_STOP:
 				HandleRadioStop(sender, ctx);
 				break;
-
 			case UnesennyeConstants.RADIO_INSERT_CARD:
 				HandleRadioInsertCard(sender, target, ctx);
 				break;
-
 			case UnesennyeConstants.RADIO_EJECT_CARD:
 				HandleRadioEjectCard(sender, target, ctx);
 				break;
-
 			case UnesennyeConstants.RADIO_PLAY_TRACK:
 				HandleRadioPlayTrack(sender, target, ctx);
 				break;
-
 			case UnesennyeConstants.RADIO_STOP_TRACK:
 				HandleRadioStopTrack(sender, target, ctx);
 				break;
-
 			case UnesennyeConstants.ALBUM_NEXT_TRACK:
 				HandleAlbumNext(sender, ctx);
 				break;
-
 			case UnesennyeConstants.ALBUM_PREV_TRACK:
 				HandleAlbumPrev(sender, ctx);
 				break;
-
 			case UnesennyeConstants.ALBUM_SET_TRACK:
 				HandleAlbumSetTrack(sender, ctx);
 				break;
-
 			case UnesennyeConstants.ALBUM_GET_TRACKLIST:
 				HandleAlbumGetTracklist(sender, ctx);
 				break;
-
 			default:
 				break;
 		}
@@ -74,10 +62,9 @@ class UnesennyeRPCHandler
 		if (!UnesennyeAuth.IsAuthorized(identity))
 			return;
 
-		// Если есть зарегистрированные плейлисты — отдаём первый как пример
 		string list = UnesennyeMusicLibrary.GetTracksAsString(1);
 		if (list == "")
-			list = "track_01,track_02,track_03";
+			list = "track_01.ogg,track_02.ogg";
 
 		Param1<string> response = new Param1<string>(list);
 		GetGame().RPCSingleParam(null, UnesennyeConstants.TRACK_LIST_RESP, response, true, identity);
@@ -125,6 +112,9 @@ class UnesennyeRPCHandler
 		if (cardClass != UnesennyeConstants.SD_CARD_CLASS && cardClass != UnesennyeConstants.SD_CARD_EMPTY)
 			return;
 
+		if (playlistId < 0)
+			playlistId = 0;
+
 		UnesennyeSDCardManager.InsertCard(identity, target, playlistId, cardClass);
 	}
 
@@ -154,7 +144,7 @@ class UnesennyeRPCHandler
 		if (ctx.Read(data))
 			track = data.param1;
 
-		// Если track пустой — берём первый трек из библиотеки
+		int trackIndex = 0;
 		if (track == "" && UnesennyeMusicLibrary.HasPlaylist(playlistId))
 		{
 			array<string> tracks = UnesennyeMusicLibrary.GetTracks(playlistId);
@@ -162,9 +152,11 @@ class UnesennyeRPCHandler
 				track = tracks.Get(0);
 		}
 
-		Print("[Unesennye Server] RADIO_PLAY_TRACK by " + identity.GetName() + " | playlist=" + playlistId.ToString() + " | track=" + track);
+		string soundSet = UnesennyeMusicLibrary.GetSoundSetName(playlistId, trackIndex);
+		Print("[Unesennye Server] RADIO_PLAY_TRACK by " + identity.GetName() + " | playlist=" + playlistId.ToString() + " | track=" + track + " | soundSet=" + soundSet);
 
-		Param2<int, string> broadcast = new Param2<int, string>(playlistId, track);
+		// Unified broadcast: playlistId, trackName, soundSetName
+		Param3<int, string, string> broadcast = new Param3<int, string, string>(playlistId, track, soundSet);
 		GetGame().RPCSingleParam(null, UnesennyeConstants.RADIO_BROADCAST, broadcast, true, null);
 	}
 
@@ -180,12 +172,14 @@ class UnesennyeRPCHandler
 	{
 		if (!UnesennyeAuth.IsAuthorized(identity))
 			return;
+		Print("[Unesennye Server] ALBUM_NEXT by " + identity.GetName());
 	}
 
 	protected void HandleAlbumPrev(PlayerIdentity identity, ParamsReadContext ctx)
 	{
 		if (!UnesennyeAuth.IsAuthorized(identity))
 			return;
+		Print("[Unesennye Server] ALBUM_PREV by " + identity.GetName());
 	}
 
 	protected void HandleAlbumSetTrack(PlayerIdentity identity, ParamsReadContext ctx)
@@ -211,7 +205,7 @@ class UnesennyeRPCHandler
 
 		string list = UnesennyeMusicLibrary.GetTracksAsString(1);
 		if (list == "")
-			list = "album_01_track_01,album_01_track_02,album_01_track_03";
+			list = "track_01.ogg,track_02.ogg";
 
 		Param1<string> response = new Param1<string>(list);
 		GetGame().RPCSingleParam(null, UnesennyeConstants.ALBUM_TRACKLIST_RESP, response, true, identity);

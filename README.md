@@ -1,35 +1,18 @@
-# UNESENNYE MUSIC SYSTEM v1.2.3 — Server Mod
+# UNESENNYE MUSIC SYSTEM v1.2.4 — Server Mod
 
 **Author:** KRa Tos (Константин)  
-**Version:** 1.2.3
+**Version:** 1.2.4
 
----
+## Fixes in 1.2.4
+- Removed duplicate SD card item definitions (items live in client mod only)
+- MusicLibrary now registers default playlists on load
+- SDCardManager uses NetworkID for stable keys
+- Unified RADIO_BROADCAST payload: Param3&lt;playlistId, track, soundSet&gt;
+- Fixed foreach compatibility, version strings aligned
 
-## Что нового в v1.2.3
-
-- **Автогенерация meta для каждого файла**
-  - Рядом с каждым `.ogg` / `.mp3` / `.wav` создаётся файл `имя_трека.meta`
-  - Содержит: name, file, extension, index, playlist, size_bytes
-- Плейлистный `meta.txt` по-прежнему создаётся для каждой папки
-
-### Пример
-
+## Launch
 ```
-Music/sd_playlists/01/
-├── night_drive.ogg
-├── night_drive.meta      ← авто
-├── summer_hit.mp3
-├── summer_hit.meta       ← авто
-└── meta.txt              ← авто (список всех треков)
+-mod=@unesennye_servermod;@unesennye_music_db;@unesennye
 ```
 
-Запуск:
-```
-tools\generate_music_meta.bat
-```
-
----
-
-## Author
-
-**KRa Tos (Константин)**
+**Author:** KRa Tos (Константин)

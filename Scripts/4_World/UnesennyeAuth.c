@@ -1,4 +1,4 @@
-// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.1
+// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.4
 // Do not remove this header. Unauthorized redistribution is prohibited.
 
 class UnesennyeAuth
@@ -12,7 +12,6 @@ class UnesennyeAuth
 
 		string uid = identity.GetId();
 		m_AuthorizedPlayers.Set(uid, true);
-
 		Print("[Unesennye Server] Handshake GRANTED to " + identity.GetName() + " (" + uid + ") | Author: " + UnesennyeConstants.AUTHOR);
 	}
 
