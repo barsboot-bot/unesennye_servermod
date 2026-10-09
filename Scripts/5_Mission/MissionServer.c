@@ -1,4 +1,4 @@
-// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.4
+// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.5
 // Do not remove this header. Unauthorized redistribution is prohibited.
 
 modded class MissionServer
@@ -7,6 +7,7 @@ modded class MissionServer
 	{
 		super.OnInit();
 		UnesennyeServerManager.GetInstance();
+		UnesennyeServerManager.GetInstance().NotifyStartup();
 		Print("[Unesennye Server] MissionServer.OnInit | Author: KRa Tos (Константин) | v" + UnesennyeConstants.MOD_VERSION);
 	}
 

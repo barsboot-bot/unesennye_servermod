@@ -1,4 +1,4 @@
-// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.4
+// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.5
 // Do not remove this header. Unauthorized redistribution is prohibited.
 
 class UnesennyeServerManager
@@ -17,7 +17,19 @@ class UnesennyeServerManager
 	{
 		m_RPCHandler = new UnesennyeRPCHandler();
 		UnesennyeMusicLibrary.LoadFromProfile();
+		UnesennyeDiscordWebhook.LoadConfig();
 		Print("[Unesennye Server] Manager initialized | Version: " + UnesennyeConstants.MOD_VERSION + " | Author: " + UnesennyeConstants.AUTHOR);
+	}
+
+	void NotifyStartup()
+	{
+		// Delayed slightly so hostname is available
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SendStartupDiscord, 3000, false);
+	}
+
+	void SendStartupDiscord()
+	{
+		UnesennyeDiscordWebhook.NotifyServerStart();
 	}
 
 	void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)

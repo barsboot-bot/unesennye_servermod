@@ -1,16 +1,39 @@
-# UNESENNYE MUSIC SYSTEM v1.2.4 — Server Mod
+# UNESENNYE MUSIC SYSTEM v1.2.5 — Server Mod
 
 **Author:** KRa Tos (Константин)  
-**Version:** 1.2.4
+**Version:** 1.2.5
 
-## Fixes in 1.2.4
-- Removed duplicate SD card item definitions (items live in client mod only)
-- MusicLibrary now registers default playlists on load
-- SDCardManager uses NetworkID for stable keys
-- Unified RADIO_BROADCAST payload: Param3&lt;playlistId, track, soundSet&gt;
-- Fixed foreach compatibility, version strings aligned
+## Discord webhook (safe)
+
+On server start the mod can post to Discord:
+
+- server hostname
+- mod version
+- author
+
+**Passwords and admin credentials are never sent.**
+
+### Setup
+
+1. Create a Discord webhook in your channel settings.
+2. On the game server, open (or let the mod create):
+
+```
+<server_profile>/Unesennye/discord_webhook.txt
+```
+
+3. Put **only** the webhook URL on a non-comment line:
+
+```
+https://discord.com/api/webhooks/ID/TOKEN
+```
+
+4. Restart the server.
+
+If the file is empty or missing a URL, Discord notifications stay disabled.
 
 ## Launch
+
 ```
 -mod=@unesennye_servermod;@unesennye_music_db;@unesennye
 ```

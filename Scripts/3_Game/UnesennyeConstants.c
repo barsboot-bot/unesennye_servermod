@@ -1,4 +1,4 @@
-// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.4
+// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.5
 // Do not remove this header. Unauthorized redistribution is prohibited.
 
 class UnesennyeConstants
@@ -40,8 +40,12 @@ class UnesennyeConstants
 	static const string META_FILE_NAME     = "meta.txt";
 	static const string FILE_META_EXT      = ".meta";
 
+	// Discord webhook config path (server profile only — never ship secrets in PBO)
+	static const string DISCORD_CFG_DIR    = "$profile:Unesennye";
+	static const string DISCORD_CFG_FILE   = "$profile:Unesennye/discord_webhook.txt";
+
 	static const string DISCONNECT_MSG = "Error: Required server mod 'unesennye_servermod' is missing.";
 	static const string AUTHOR         = "KRa Tos (Константин)";
-	static const string MOD_VERSION    = "1.2.4";
+	static const string MOD_VERSION    = "1.2.5";
 	static const string MOD_NAME       = "unesennye_servermod";
 };
