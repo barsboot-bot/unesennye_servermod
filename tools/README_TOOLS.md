@@ -1,7 +1,7 @@
-# Unesennye Tools
+# Инструменты Unesennye
 
-**Author:** KRa Tos (Константин)  
-**Version:** 1.2.3
+**Автор:** KRa Tos (Константин)  
+**Версия:** 1.3.0
 
 ## generate_music_meta.bat
 
@@ -30,7 +30,7 @@ extension=.ogg
 index=1
 playlist=01
 size_bytes=3456789
-generated_by=Unesennye generate_music_meta.bat v1.2.3
+generated_by=Unesennye generate_music_meta.bat
 author=KRa Tos (Константин)
 ```
 
@@ -41,7 +41,7 @@ name=01
 id=01
 tracks=song_one.ogg,song_two.mp3
 count=2
-generated_by=Unesennye generate_music_meta.bat v1.2.3
+generated_by=Unesennye generate_music_meta.bat
 author=KRa Tos (Константин)
 ```
 
