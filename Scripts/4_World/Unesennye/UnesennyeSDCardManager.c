@@ -1,4 +1,4 @@
-// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.3.0
+// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.3.3
 // Do not remove this header. Unauthorized redistribution is prohibited.
 
 class UnesennyeSDCardManager
@@ -19,7 +19,17 @@ class UnesennyeSDCardManager
 		return key;
 	}
 
-	// Validate that target actually has SD card (or cassette/disk) attached
+	static bool IsValidMediaClass(string cardClass)
+	{
+		return cardClass == UnesennyeConstants.SD_CARD_CLASS
+			|| cardClass == UnesennyeConstants.SD_CARD_EMPTY
+			|| cardClass == UnesennyeConstants.CASSETTE_CLASS
+			|| cardClass == UnesennyeConstants.DISK_CLASS
+			|| cardClass == UnesennyeConstants.CD_CLASS
+			|| cardClass == UnesennyeConstants.DVD_CLASS
+			|| cardClass == UnesennyeConstants.DVD_R_CLASS;
+	}
+
 	static bool ValidateAttachedMedia(Object target, out int playlistId, out string cardClass)
 	{
 		playlistId = 0;
@@ -33,7 +43,7 @@ class UnesennyeSDCardManager
 		if (!att) return false;
 
 		cardClass = att.GetType();
-		if (cardClass != UnesennyeConstants.SD_CARD_CLASS && cardClass != UnesennyeConstants.SD_CARD_EMPTY && cardClass != UnesennyeConstants.CASSETTE_CLASS && cardClass != UnesennyeConstants.DISK_CLASS)
+		if (!IsValidMediaClass(cardClass))
 			return false;
 
 		playlistId = att.GetQuantity();
@@ -47,7 +57,7 @@ class UnesennyeSDCardManager
 		if (key == "") return;
 		m_InsertedPlaylistId.Set(key, playlistId);
 		m_InsertedCardClass.Set(key, cardClassName);
-		UnesennyeLogger.Log("SD INSERT " + identity.GetName() + " playlist=" + playlistId.ToString() + " class=" + cardClassName);
+		UnesennyeLogger.Log("MEDIA INSERT " + identity.GetName() + " playlist=" + playlistId.ToString() + " class=" + cardClassName);
 
 		if (UnesennyeConfig.Get().DiscordSDInsert)
 			UnesennyeDiscordWebhook.NotifySDInsert(identity.GetName(), playlistId);
@@ -61,13 +71,12 @@ class UnesennyeSDCardManager
 		{
 			m_InsertedPlaylistId.Remove(key);
 			m_InsertedCardClass.Remove(key);
-			UnesennyeLogger.Log("SD EJECT " + identity.GetName());
+			UnesennyeLogger.Log("MEDIA EJECT " + identity.GetName());
 		}
 	}
 
 	static bool HasCard(PlayerIdentity identity, Object target)
 	{
-		// Prefer live attachment check
 		int pid;
 		string cc;
 		if (ValidateAttachedMedia(target, pid, cc))

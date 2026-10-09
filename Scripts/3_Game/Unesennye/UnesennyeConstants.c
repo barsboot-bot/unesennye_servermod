@@ -1,4 +1,4 @@
-// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.3.0
+// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.3.3
 // Do not remove this header. Unauthorized redistribution is prohibited.
 
 class UnesennyeConstants
@@ -37,6 +37,9 @@ class UnesennyeConstants
 	static const string SD_SLOT_NAME      = "Unesennye_SDCard";
 	static const string CASSETTE_CLASS    = "Unesennye_Cassette";
 	static const string DISK_CLASS        = "Unesennye_Disk";
+	static const string CD_CLASS          = "Unesennye_CD";
+	static const string DVD_CLASS         = "Unesennye_DVD";
+	static const string DVD_R_CLASS       = "Unesennye_DVD_R";
 
 	static const string PROFILE_DIR       = "$profile:Unesennye";
 	static const string CONFIG_FILE       = "$profile:Unesennye/config.json";
@@ -45,6 +48,6 @@ class UnesennyeConstants
 
 	static const string DISCONNECT_MSG = "Error: Required server mod 'unesennye_servermod' is missing.";
 	static const string AUTHOR         = "KRa Tos (Константин)";
-	static const string MOD_VERSION    = "1.3.0";
+	static const string MOD_VERSION    = "1.3.3";
 	static const string MOD_NAME       = "unesennye_servermod";
 };
