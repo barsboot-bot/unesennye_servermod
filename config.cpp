@@ -1,4 +1,4 @@
-// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.4
+// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.3.0
 // Do not remove this header. Unauthorized redistribution is prohibited.
 
 class CfgPatches
@@ -25,7 +25,7 @@ class CfgMods
 		credits = "KRa Tos (Константин)";
 		author = "KRa Tos (Константин)";
 		authorID = "";
-		version = "1.2.4";
+		version = "1.3.0";
 		extra = 0;
 		type = "mod";
 		dependencies[] = {"Game", "World", "Mission"};
