@@ -1,4 +1,4 @@
-// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.2.5
+// Author: KRa Tos (Константин) | Project: Unesennye Music System v1.3.0
 // Do not remove this header. Unauthorized redistribution is prohibited.
 
 modded class MissionServer
@@ -8,7 +8,7 @@ modded class MissionServer
 		super.OnInit();
 		UnesennyeServerManager.GetInstance();
 		UnesennyeServerManager.GetInstance().NotifyStartup();
-		Print("[Unesennye Server] MissionServer.OnInit | Author: KRa Tos (Константин) | v" + UnesennyeConstants.MOD_VERSION);
+		UnesennyeLogger.Log("MissionServer.OnInit v" + UnesennyeConstants.MOD_VERSION);
 	}
 
 	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
@@ -20,6 +20,7 @@ modded class MissionServer
 	override void InvokeOnConnect(PlayerBase player, PlayerIdentity identity)
 	{
 		super.InvokeOnConnect(player, identity);
+		UnesennyeServerManager.GetInstance().OnPlayerConnected(identity);
 	}
 
 	override void PlayerDisconnected(PlayerBase player, PlayerIdentity identity, string uid)
